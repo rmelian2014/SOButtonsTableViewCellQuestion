@@ -12,7 +12,7 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var tableView: UITableView!
     
-    var dictOfSelectedsCells : [Int:Bool] = [:]
+    var dictOfSelectedsCells : [Int:String?] = [:]
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,18 +35,22 @@ extension ViewController : UITableViewDelegate,UITableViewDataSource
         return 4
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return ButtonTableViewCell.cellHeigth
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         if let cell = tableView.dequeueReusableCell(withIdentifier: "ButtonTableViewCell", for: indexPath) as? ButtonTableViewCell
         {
             cell.selectionStyle = .none
-            var selectedState = false
-            if let currentSelectedState = self.dictOfSelectedsCells[indexPath.row]
+            var selectedText : String?
+            if let currentSelectedText = self.dictOfSelectedsCells[indexPath.row]
             {
-                selectedState = currentSelectedState
+                selectedText = currentSelectedText
             }
             
-            cell.setupWithClosure(selected:selectedState, closure: { [weak self] (selected) in
+            cell.setupWithClosure(texts:["Variant1","Variant2","Variant3","Variant4"], textSelected: selectedText, closure: { [weak self] (selected) in
                 debugPrint(indexPath)
                 self?.dictOfSelectedsCells[indexPath.row] = selected
                 tableView.reloadRows(at: [indexPath], with: .none)

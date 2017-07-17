@@ -8,45 +8,90 @@
 
 import UIKit
 
+@IBDesignable
 class ButtonTableViewCell: UITableViewCell {
-
-    @IBOutlet weak var button: UIButton!
-    var selectedState : Bool = false
     
-    var buttonActionClosure : ((_ selectedState:Bool)->Void)?
+    @IBInspectable var selectedColor : UIColor = UIColor.red
+    @IBInspectable var normalColor : UIColor = UIColor.blue
     
-    func setupWithClosure(selected:Bool,closure:((_ selectedState:Bool)->Void)?)
+    static let cellHeigth : CGFloat = 360
+    
+    @IBOutlet var buttonsArray: [UIButton]!
+    var selectedText : String?{
+        willSet{
+            guard newValue != nil else{
+                return
+            }
+            
+            var foundedIndex = -1
+            for (index,text) in self.texts.enumerated() {
+                if(text == newValue!){
+                    foundedIndex = index
+                    break
+                }
+            }
+            
+            guard foundedIndex != -1 else
+            {
+                return
+            }
+            
+            self.buttonsArray[foundedIndex].backgroundColor = selectedColor
+        }
+    }
+    var texts : [String] = []
+    
+    var buttonActionClosure : ((_ selectedText:String?)->Void)?
+    
+    func setupWithClosure(texts:[String],textSelected:String?,closure:((_ selectedText:String?)->Void)?)
     {
-        self.selectedState = selected
+        self.texts = texts
+        
+        for (index,button) in self.buttonsArray.enumerated(){
+            if(self.texts.count > index)
+            {
+                button.setTitle(self.texts[index], for: .normal)
+            }
+            button.tag = index
+            button.backgroundColor = self.normalColor
+        }
+        
+        
+        self.selectedText = textSelected
         if(closure != nil)
         {
             self.buttonActionClosure = closure
         }
         
-        self.button.backgroundColor = UIColor.blue
-        if(self.selectedState)
-        {
-            self.button.backgroundColor = UIColor.red
-        }
+        
     }
     
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
-
+    
     override func setSelected(_ selected: Bool, animated: Bool) {
         super.setSelected(selected, animated: animated)
-
+        
         // Configure the view for the selected state
     }
     
-    @IBAction func buttonAction(sender:Any)
+    @IBAction func buttonAction(sender:UIButton)
     {
-        self.selectedState = !self.selectedState
+        if(self.texts.count > sender.tag){
+            let newSelectedText = self.texts[sender.tag]
+            
+            if(newSelectedText != self.selectedText){
+                self.selectedText = newSelectedText
+            }else
+            {
+                self.selectedText = nil
+            }
+        }
         if(self.buttonActionClosure != nil)
         {
-            self.buttonActionClosure!(self.selectedState)
+            self.buttonActionClosure!(self.selectedText)
         }
     }
     
@@ -54,5 +99,5 @@ class ButtonTableViewCell: UITableViewCell {
         super.prepareForReuse()
         self.buttonActionClosure = nil
     }
-
+    
 }
